@@ -1,0 +1,170 @@
+generator client {
+    provider      = "prisma-client-js"
+    output        = "./generated/client"
+    binaryTargets = ["native", "rhel-openssl-1.0.x"]//if you use windows you must specify it here (, "windows")
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id                      String      @id @default(uuid())
+    name                    String
+    email                   String      @unique
+    password                String
+    pix                     String
+    commission              Int         @default(20)
+    createdAt               DateTime    @default(now())
+    updatedAt               DateTime    @updatedAt
+    deletedAt               DateTime?
+    userSales               Sale[]
+    userCommissionWallet    UserCommissionWallet?
+    business                Business?   @relation(fields: [businessId], references: [id])
+    businessId              String?
+}
+
+model ClientAddress {
+    id              String      @id @default(uuid())
+    name            String
+    phone           String
+    zipcode         String
+    address         String
+    number          String
+    neighborhood    String
+    city            String
+    state           String
+    complement      String
+    deliveryDate    DateTime?   @db.Date
+    sale            Sale[]
+}
+
+model Business {
+    id                          String      @id @default(uuid())
+    company                     String
+    email                       String      @unique
+    password                    String
+    createdAt                   DateTime    @default(now())
+    updatedAt                   DateTime    @updatedAt
+    deletedAt                   DateTime?
+    sellers                     User[]
+    businessWallet              BusinessWallet?
+    businessTransactions        BusinessTransaction[]
+}
+
+model Sale {
+    id                      String          @id @default(uuid())
+    saleDate                DateTime?       @db.Date
+    transactionValue        Int
+    commission              Int
+    commissionValue         Int
+    paymentMethod           String
+    quantity                Int
+    status                  SaleStatus      @default(pending)
+    createdAt               DateTime        @default(now())
+    updatedAt               DateTime        @updatedAt
+    deletedAt               DateTime?
+    user                    User?           @relation(fields: [userId], references: [id])
+    userId                  String?
+    clientAddress           ClientAddress?  @relation(fields: [clientAddressId], references: [id])
+    clientAddressId         String?
+}
+
+
+model Product { //Não esta em uso nem ligada
+    id          String    @id @default(uuid())
+    name        String
+    price       String
+    inStock     Int
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    deletedAt   DateTime?
+}
+
+model BusinessWallet {
+    id                      String      @id @default(uuid())
+    balance                 Int
+    expense                 Int     //Todo Dinheiro que já saiu
+    revenue                 Int     //Todo Dinheiro que já entrou
+    createdAt               DateTime    @default(now())
+    updatedAt               DateTime    @updatedAt
+    deletedAt               DateTime?
+    business                Business?   @relation(fields: [businessId], references: [id])
+    businessId              String?     @unique()
+    businessTransaction     BusinessTransaction[]
+    businessWalletHistory   BusinessWalletHistory[]
+}
+
+model UserCommissionWallet {
+    id                  String      @id @default(uuid())
+    commissionToBePaid  Int
+    createdAt           DateTime    @default(now())
+    updatedAt           DateTime    @updatedAt
+    deletedAt           DateTime?
+    user                User?       @relation(fields: [userId], references: [id])
+    userId              String?     @unique()
+}
+
+model BusinessTransaction {
+    id                          String          @id @default(uuid())
+    createdBy                   String
+    createdById                 String
+    flowValue                   Int
+    flowDescription             EnumFlowDescription
+    flowType                    EnumFlowType
+    extraDescription            String
+    createdAt                   DateTime        @default(now())
+    updatedAt                   DateTime        @updatedAt
+    deletedAt                   DateTime?
+    businessWallet              BusinessWallet? @relation(fields: [businessWalletId], references: [id])
+    businessWalletId            String?
+    business                    Business?       @relation(fields: [businessId], references: [id])
+    businessId                  String?
+}
+
+model BusinessWalletHistory {//Não utilizado ainda, uma nova linha a cada transaction/sale/confirmedSale
+    id                  String          @id @default(uuid())
+    balance             Int
+    expense             Int//Todo Dinheiro que já saiu
+    revenue             Int//Todo Dinheiro que já entrou
+    createdAt           DateTime        @default(now())
+    businessWallet      BusinessWallet? @relation(fields: [businessWalletId], references: [id])
+    businessWalletId    String?
+}
+
+enum EnumFlowType {
+    revenue //entrada
+    expense //saida
+}
+
+enum EnumFlowDescription {
+    sale //venda
+    deposit //deposito
+    withdraw //saque
+    commission //comissão
+    tax //impostos
+    supplier //fornecedor
+    pots //potes
+}
+
+enum SaleStatus {
+    pending
+    confirmed
+    denied
+}
+
+// model TotalUserSales {
+//     id          String      @id @default(uuid())
+//     userSalesId String      @relation()
+//     createdAt   DateTime    @default(now())
+//     updatedAt   DateTime    @updatedAt
+//     deletedAt   DateTime?
+// }
+
+// investmentDescription   String
+// investmentValue         Int
+// card                    String
+// sale                    Int
+// roi                     Int //ROI %
+// netValue                Int

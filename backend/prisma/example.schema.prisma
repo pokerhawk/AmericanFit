@@ -1,0 +1,60 @@
+generator client {
+    provider      = "prisma-client-js"
+    output        = "./generated/client"
+    binaryTargets = ["native", "rhel-openssl-1.0.x"]//if you use windows you must specify it here (, "windows")
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Usuario {
+    id                      String      @id @default(uuid())
+    name                    String
+    login                   String
+    password                String
+    tipo                    TipoUsuario
+    createdAt               DateTime    @default(now())
+    updatedAt               DateTime    @updatedAt
+    deletedAt               DateTime?
+}
+
+model Membro {
+    id                      String      @id @default(uuid())
+    name                    String
+    phone                   String      @unique
+    password                String
+    nascimento              String
+    email                   String
+    sexo                    String
+    tipo                    TipoMembro
+    createdAt               DateTime    @default(now())
+    updatedAt               DateTime    @updatedAt
+    deletedAt               DateTime?
+}
+
+model Turma {
+    id                      String      @id @default(uuid())
+    name                    String
+    phone                   String      @unique
+    password                String
+    pix                     String
+    commission              Int         @default(20)
+    createdAt               DateTime    @default(now())
+    updatedAt               DateTime    @updatedAt
+    deletedAt               DateTime?
+    businessId              String?
+}
+
+enum TipoUsuario {
+    master
+    administrador
+    coordenador
+}
+
+enum TipoMembro {
+    pending
+    confirmed
+    denied
+}

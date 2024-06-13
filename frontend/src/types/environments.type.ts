@@ -1,0 +1,1 @@
+export type EnvironmentTypesProps = 'entrepreneurs' | 'shipping' | 'sales' | 'wallet' | 'reports';

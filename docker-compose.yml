@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: AmericanFit_DB
+    restart: always
+    environment:
+      POSTGRES_USER: AmericanADMIN
+      POSTGRES_PASSWORD: AmericanFit@2024
+      POSTGRES_DB: AmericanFit
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - "5435:5432"
+
+  api:
+    container_name: backend-app
+    build: ./backend
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+    # env_file:
+    #   - ./backend/.env
+
+  front:
+    container_name: frontend-app
+    build: ./frontend
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - api
+    # env_file:
+    #   - ./frontend/.env
+    volumes:
+      - front:/var/www/html
+
+  nginx:
+    container_name: nginx-server
+    build: ./nginx
+    ports:
+      - 80:80
+      # - 443:443
+    volumes:
+      - front:/var/www/html
+    depends_on:
+      - postgres
+      - api
+      - front
+
+volumes:
+  postgres:
+  front:
