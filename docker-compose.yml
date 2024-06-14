@@ -17,7 +17,7 @@ services:
     build: ./backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgres://AmericanADMIN:AmericanFit@2024@postgres:5432/AmericanFit
+      DATABASE_URL: "postgres://AmericanADMIN:AmericanFit@2024@postgres:5432/AmericanFit"
     ports:
       - 8080:8080
     depends_on:
@@ -29,8 +29,8 @@ services:
     container_name: frontend-app
     build: ./frontend
     restart: unless-stopped
-    environment:
-      VITE_BASE_URL: http://api:8080/api
+    # environment:
+    #   VITE_BASE_URL: "http://localhost:8080"
     ports:
       - 3000:3000
     depends_on:
