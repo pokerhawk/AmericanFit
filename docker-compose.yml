@@ -10,14 +10,14 @@ services:
     volumes:
       - postgres:/var/lib/postgres/data
     ports:
-      - "5435:5435"
+      - "5432:5432"
 
   api:
     container_name: backend-app
     build: ./backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgres://AmericanADMIN:AmericanFit@2024@postgres:5435/AmericanFit
+      DATABASE_URL: postgres://AmericanADMIN:AmericanFit@2024@postgres:5432/AmericanFit
     ports:
       - 8080:8080
     depends_on:
@@ -30,7 +30,7 @@ services:
     build: ./frontend
     restart: unless-stopped
     environment:
-      VITE_BASE_URL: http://api:8080
+      VITE_BASE_URL: http://api:8080/api
     ports:
       - 3000:3000
     depends_on:
